@@ -1,55 +1,55 @@
-# Slack App Setup
+# Slack Incoming Webhook Setup
 
-Follow these steps once to create the Slack app before running the bot.
+This bot posts a rev share digest to a Slack channel via an **Incoming Webhook** — no API keys, no bot tokens, just a single URL.
 
-## 1. Create the app
+## 1. Create the webhook (2 minutes)
 
-1. Go to https://api.slack.com/apps → **Create New App** → **From scratch**
-2. Name it `Rev Share Bot` and select your workspace
+1. Open Slack and go to **Apps** → search for **Incoming WebHooks** → click **Add to Slack**
+2. Under **Post to Channel**, pick the channel where you want the digest to appear (e.g. `#rev-share` or `#commercial`)
+3. Click **Add Incoming WebHooks Integration**
+4. Copy the **Webhook URL** — it looks like:
+   ```
+   (example: hooks.slack.com/services/T.../B.../...)
+   ```
 
-## 2. Enable Socket Mode (for local development)
-
-1. In the left sidebar go to **Socket Mode**
-2. Toggle it **on**
-3. Generate an **App-Level Token** with scope `connections:write` — copy it as `SLACK_APP_TOKEN`
-
-## 3. Add the slash command
-
-1. Go to **Slash Commands** → **Create New Command**
-   - Command: `/rev-share`
-   - Request URL: `https://your-host/slack/events` (not used in Socket Mode, but required)
-   - Description: `Get per-partner rev share breakdown`
-   - Usage hint: `[partner name]`
-2. Save
-
-## 4. Set OAuth scopes
-
-1. Go to **OAuth & Permissions** → **Bot Token Scopes**
-2. Add: `commands`, `chat:write`
-3. Install the app to your workspace
-4. Copy the **Bot User OAuth Token** as `SLACK_BOT_TOKEN`
-
-## 5. Copy the signing secret
-
-1. Go to **Basic Information** → **App Credentials**
-2. Copy **Signing Secret** as `SLACK_SIGNING_SECRET`
-
-## 6. Configure environment
+## 2. Configure environment
 
 ```bash
 cp .env.example .env
-# Fill in SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET, SLACK_APP_TOKEN
 ```
 
-## 7. Run locally
+Open `.env` and paste the webhook URL:
+```
+SLACK_WEBHOOK_URL=paste-your-webhook-url-here
+```
+
+## 3. Install and run
 
 ```bash
 npm install
+
+# Test immediately — posts to Slack right now
+npm run post
+
+# Start the weekly scheduler (every Monday 9 AM by default)
 npm run dev
 ```
 
-Then in Slack type `/rev-share` or `/rev-share Partner Alpha`.
+## 4. Change the schedule
 
-## Production deployment
+Edit `CRON_SCHEDULE` in your `.env`. Use [crontab.guru](https://crontab.guru) to build a schedule.
 
-For production, disable Socket Mode and point the slash command Request URL at your deployed host (e.g. `https://rev-share-bot.your-domain.com/slack/events`). Remove `SLACK_APP_TOKEN` from env.
+Examples:
+```
+0 9 * * 1        # Every Monday at 9 AM (default)
+0 8 * * 1,4      # Monday and Thursday at 8 AM
+0 9 1 * *        # First day of every month at 9 AM
+```
+
+## 5. Wire up real CAT data
+
+Once you have CAT API access (raise a Jira ticket at `checkout.atlassian.net/wiki/spaces/ATLAS/pages/1183547415/Access+to+CAT` — Antonio Vasilev approves):
+
+1. Set `CAT_API_URL` and `CAT_API_KEY` in `.env`
+2. Update `src/integrations/cat.ts` — the `TODO` comment marks the exact line to replace
+3. Run `npm run post` to verify the output looks correct

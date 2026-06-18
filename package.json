@@ -1,19 +1,21 @@
 {
   "name": "rev-share-bot",
   "version": "1.0.0",
-  "description": "Slack bot for on-demand per-partner rev share breakdowns",
+  "description": "Scheduled Slack digest for per-partner rev share breakdowns",
   "main": "dist/app.js",
   "scripts": {
     "build": "tsc",
     "dev": "tsx watch src/app.ts",
-    "start": "node dist/app.js"
+    "start": "node dist/app.js",
+    "post": "tsx src/app.ts --once"
   },
   "dependencies": {
-    "@slack/bolt": "^3.22.0",
-    "dotenv": "^16.5.0"
+    "dotenv": "^16.5.0",
+    "node-cron": "^3.0.3"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "@types/node-cron": "^3.0.11",
     "tsx": "^4.19.0",
     "typescript": "^5.8.0"
   }

@@ -1,18 +1,19 @@
 import "dotenv/config";
-import { App } from "@slack/bolt";
-import { registerRevShareCommand } from "./commands/revShare";
+import cron from "node-cron";
+import { postRevShare } from "./poster";
 
-const app = new App({
-  token: process.env.SLACK_BOT_TOKEN,
-  signingSecret: process.env.SLACK_SIGNING_SECRET,
-  socketMode: process.env.SLACK_APP_TOKEN !== undefined,
-  appToken: process.env.SLACK_APP_TOKEN,
-  port: Number(process.env.PORT) || 3000,
-});
+const runOnce = process.argv.includes("--once");
 
-registerRevShareCommand(app);
-
-(async () => {
-  await app.start();
-  console.log("⚡ Rev Share bot running");
-})();
+if (runOnce) {
+  postRevShare().catch((err) => {
+    console.error("Failed to post rev share:", err.message);
+    process.exit(1);
+  });
+} else {
+  // Default: every Monday at 9:00 AM. Override with CRON_SCHEDULE env var.
+  const schedule = process.env.CRON_SCHEDULE ?? "0 9 * * 1";
+  cron.schedule(schedule, () => {
+    postRevShare().catch((err) => console.error("Failed to post rev share:", err.message));
+  });
+  console.log(`⏰ Rev share scheduler running (${schedule})`);
+}
