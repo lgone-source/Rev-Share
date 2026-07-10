@@ -1,15 +1,16 @@
 # MENA → KSA Entity: Merchant Contract Migration Plan
 
-**Status:** Draft v2 · **Project Owners:** Jelena & Alaa · **Last updated:** 2026-07-10
+**Status:** Draft v3 · **Project Owners:** Jelena & Alaa · **Last updated:** 2026-07-10
 
-> Driven by a **regulatory KSA e-invoicing (ZATCA) deadline** — this is a hard forcing function. `[confirm exact date]`
-> ⚠️ **No rollback:** once a merchant is live on the KSA entity, it cannot be reverted. Pre-go-live validation is the only safety net — every merchant must pass a go-live check before cutover.
+> Driven by a **regulatory KSA e-invoicing (ZATCA) deadline** — hard forcing function. `[deadline: TBC]`
+> ⚠️ **No rollback:** once a merchant is live on the KSA entity it cannot be reverted. The pre-go-live check is the only safety net — every merchant must pass it before cutover.
+> 📅 **Timelines:** all dates left blank (`TBC`) for the team to fill — see the date columns in §8 and the milestones in §9.
 
 ---
 
 ## 1. Objective
 
-Migrate the existing merchant book contracted/invoiced through the **MENA entity** to the **KSA entity**, with the correct contractual, billing, tax, and e-invoicing posture for each merchant — without interrupting live processing and with zero reliance on rollback.
+Migrate the merchant book contracted/invoiced through the **MENA entity** to the **KSA entity**, with the correct contractual, billing, tax, and e-invoicing posture per merchant — without interrupting live processing and with zero reliance on rollback.
 
 ## 2. Owners (RACI)
 
@@ -32,9 +33,7 @@ Migrate the existing merchant book contracted/invoiced through the **MENA entity
 | Unmanaged | 200 | Thomas + **Merchant Care**: scaled comms, self-serve MAF, chase SLA |
 | **Total** | **354** | — |
 
-Segmentation for execution is **managed vs. unmanaged**. Contract category (below) determines the *workflow* each merchant follows.
-
-> **Phase 0 action:** master tracker of all 354, each row tagged with contract category + managed/unmanaged + current MENA billing setup + go-live-check status. Reconcile to 354.
+Execution segmentation is **managed vs. unmanaged**; contract category (below) sets the workflow. The existing master tracker is the single source of truth — segment it by lane (category) and comms track (managed/unmanaged) and add a go-live-check + cutover-date column.
 
 ## 4. Contract Categories & Migration Workflow
 
@@ -66,7 +65,7 @@ Segmentation for execution is **managed vs. unmanaged**. Contract category (belo
 | Pilot testing (stability) | **Davine (CAT)** | **Mandatory — no rollback if it fails live** |
 | Phased rollout | **Davine (CAT)** | After pilot sign-off |
 
-**Sequencing rule:** No backend change until Thomas has told the merchant. Because there's no rollback, pilot must prove stability before any production cutover.
+**Sequencing rule:** No backend change until Thomas has told the merchant. With no rollback, pilot must prove stability before any production cutover.
 
 ### 4.3 Direct Billing (dual billing + rev-share only)
 *Confirmed scope: merchants with a dual billing + revenue-share structure.*
@@ -86,33 +85,53 @@ Segmentation for execution is **managed vs. unmanaged**. Contract category (belo
 Owned by **Thomas with Merchant Care**. No account managers, so:
 - Templated mass email + self-serve MAF link.
 - Merchant Care shared queue for questions.
-- Chase cadence with an SLA (e.g., Day 0 send · Day 7 reminder · Day 14 escalation to Thomas/Project Owners). `[confirm cadence]`
+- Chase cadence with an SLA (e.g., Day 0 send · Day 7 reminder · Day 14 escalation to Thomas/Project Owners). `[cadence: TBC]`
 
 ## 6. New Merchants (in-flight)
 Any *new* merchant requesting KSA-entity invoicing still completes the **standard approval process** before onboarding — no fast-path. Flag in-flight new merchants for direct-to-KSA onboarding; never route through MENA.
 
 ## 7. E-Invoicing (KSA ZATCA)
-The **regulatory e-invoicing deadline is the forcing function** for this migration. Per current call, e-invoicing readiness is **not treated as a per-category go-live gate for now** — tracked in parallel by Jelena. Revisit if the ZATCA date compresses the timeline.
+The **regulatory e-invoicing deadline is the forcing function** for this migration. E-invoicing readiness is **not** a per-category go-live gate for now — tracked in parallel by Jelena. Revisit if the ZATCA date compresses the timeline.
 
 ## 8. Phasing & Sequencing
 
-| Phase | What | Exit criteria |
-|---|---|---|
-| **0 — Foundation** | 354-row master tracker; RACI live (done); confirm ZATCA date | Tracker reconciles to 354; deadline fixed |
-| **1 — No Contract** | 4-way approval → SF unlock → MAF waves (managed first, then unmanaged via Merchant Care) → go-live checks | Approvals captured; MAFs in; merchants passing go-live check |
-| **2 — TPA Rev-Share** | Thomas comms → Davine config → pilot → rollout | Pilot stable; rollout complete |
-| **3 — Direct Billing** | Case-by-case, tax-gated, go-live-checked | All tax-cleared and migrated |
-| **4 — Close-out** | Confirm zero residual MENA billing; reconcile; retire MENA setups | No in-scope merchant billing via MENA |
+*(Dates left blank for the team to set.)*
+
+| Phase | What | Owner(s) | Start | Target end | Exit criteria |
+|---|---|---|---|---|---|
+| **0 — Foundation** | Segment existing tracker into lanes; confirm ZATCA date; RACI live (done) | Jelena & Alaa | `TBC` | `TBC` | Lanes segmented; deadline fixed |
+| **1 — No Contract** | 4-way approval → SF unlock → MAF waves (managed first, then unmanaged via Merchant Care) → go-live checks | Lencer / Davine / Thomas | `TBC` | `TBC` | Approvals captured; MAFs in; merchants passing go-live check |
+| **2 — TPA Rev-Share** | Thomas comms → Davine config → pilot → rollout | Thomas / Davine | `TBC` | `TBC` | Pilot stable; rollout complete |
+| **3 — Direct Billing** | Case-by-case, tax-gated, go-live-checked | Lencer / Tax / Davine | `TBC` | `TBC` | All tax-cleared and migrated |
+| **4 — Close-out** | Confirm zero residual MENA billing; reconcile; retire MENA setups | Seema / Jelena & Alaa | `TBC` | `TBC` | No in-scope merchant billing via MENA |
 
 Phases 1–3 run in parallel after Phase 0 — they gate on different owners (approvals vs. Thomas vs. Tax).
 
-## 9. Risks & Open Questions
-1. **Exact ZATCA/e-invoicing deadline still needed** — sequencing and wave sizing depend on it. Only remaining Phase-0 blocker.
-2. **No rollback = pre-go-live check is critical** — a bad cutover cannot be undone; the go-live checklist must be enforced per merchant.
+## 9. Timeline & Milestones
+
+*(Fill dates once the ZATCA deadline is confirmed and work back from it.)*
+
+| # | Milestone | Owner | Target date |
+|---|---|---|---|
+| M0 | ZATCA / e-invoicing deadline confirmed | Jelena | `TBC` |
+| M1 | Tracker segmented into lanes | Jelena & Alaa | `TBC` |
+| M2 | No-Contract 4-way approval secured | Jelena & Alaa | `TBC` |
+| M3 | Salesforce KSA options unlocked | Davine | `TBC` |
+| M4 | MAF wave 1 (managed) sent | Lencer | `TBC` |
+| M5 | MAF wave 2 (unmanaged) sent | Thomas / Merchant Care | `TBC` |
+| M6 | TPA pilot signed off | Davine | `TBC` |
+| M7 | TPA rollout complete | Davine | `TBC` |
+| M8 | Direct Billing tax reviews complete | Tax | `TBC` |
+| M9 | All lanes migrated & go-live-checked | Project Owners | `TBC` |
+| M10 | MENA billing retired (close-out) | Seema | `TBC` |
+
+## 10. Risks & Open Questions
+1. **Exact ZATCA/e-invoicing deadline still needed** — sequencing and wave sizing work back from it. Top open item.
+2. **No rollback = pre-go-live check is critical** — a bad cutover cannot be undone; enforce the go-live checklist per merchant.
 3. **Unmanaged 200 chase relies on Merchant Care capacity** — confirm they can absorb 200 + the chase SLA.
 4. **Approval gate is serial + multi-party** — one slow approver (Elaine/Remo/Nadia/Tax) stalls the whole No-Contract lane.
-5. **Direct Billing tax lane is the long pole** — case-by-case + tax review; may need its own sub-plan and buffer against the deadline.
-6. **Processing continuity during backend config (§4.2)** — no gap in live processing during entity switch.
+5. **Direct Billing tax lane is the long pole** — case-by-case + tax review; may need buffer against the deadline.
+6. **Processing continuity during backend config (§4.2)** — no gap in live processing during the entity switch.
 
-## 10. Source: Post-Call Summary
+## 11. Source: Post-Call Summary
 > MENA → KSA migration — 154 managed, 200 unmanaged. Categories: No Contract; TPA Revenue Share Only; Direct Billing (dual billing + rev-share). New merchants still go through standard approval. No Contract: unlock CKO KSA options in Salesforce, send MAF; subject to email approval from Elaine, Remo, Nadia, Tax. TPA Rev-Share: config team backend changes + pilot, after Thomas communicates. Direct Billing: case-by-case, tax perspective. Jelena joins the call with Elaine re: e-invoicing rollout. Regulatory e-invoicing deadline is the forcing function; no rollback once live.
